@@ -3,6 +3,10 @@ import numpy as np
 INF = 1000000
 
 def data_generation(machine_type, time, machines, country_prices):
+  '''
+  Data cleaning of empty value 
+  and generating rates for the given number of hours
+  '''
   new_machine_type=[]
   new_machines=[]
   new_country_prices=[]  
@@ -16,7 +20,9 @@ def data_generation(machine_type, time, machines, country_prices):
 
 
 def minimum_cost_resource_allocator(country, machine_type, machines, country_prices, units):
-
+  '''
+  Main function to find minimum_cost_resource distribution
+  '''
   n = len(country_prices)
   # Solution matrix initialization
   solution_matrix = [[None for j in range(units+1)] for i in range(n+1)] 
@@ -39,8 +45,9 @@ def minimum_cost_resource_allocator(country, machine_type, machines, country_pri
         solution_matrix[i][j] = solution_matrix[i-1][j]
 
   lowest_weight = solution_matrix[n][units]
-  machines_with_qty = find_machines(solution_matrix, n, units)
+  machines_with_qty = find_machines(solution_matrix, n, units, country_prices)
   
+  # Output in the format 
   output = {
   "region": country,
   "total_cost": "$"+str(lowest_weight),
@@ -48,7 +55,12 @@ def minimum_cost_resource_allocator(country, machine_type, machines, country_pri
   }
   return output
 
-def find_machines(dp, n, units):
+def find_machines(dp, n, units, country_prices):
+  '''
+  Function to track the matrix and 
+  find the machines and their respective quantities
+  acheiving the otpimal results
+  '''
   x = n
   y = units
   hash = dict()
@@ -58,6 +70,7 @@ def find_machines(dp, n, units):
     elif (dp[x - 1][y] == dp[x][y - machines[x - 1]] + country_prices[x - 1]): 
         x-=1
     else:
+      # add number to the machine type
       if machine_type[x - 1] in hash.keys():
         hash[machine_type[x - 1]] += 1
       else:
@@ -66,11 +79,15 @@ def find_machines(dp, n, units):
       y -= machines[x - 1]
   return hash
 
-  
+
 if __name__ == "__main__":
+  '''
+  Main calling function
+  '''
   units = int(input("Capacity (units): "))
   time = int(input("Operation time (hours): "))
   
+  # Given data
   countries= ["NewYork", "India", "China"]
   NewYork  = [120,230,450,774,1400,2820]
   India    = [140,None,413,890,1300,2970]		
@@ -83,9 +100,12 @@ if __name__ == "__main__":
     country_pricelist = [NewYork, India, China]
     country_and_price = dict(zip(countries, country_pricelist))
 
+    # Data cleaning and price based on time calculation
     machine_type, machines, country_prices = data_generation(machine_type, time, machines, country_and_price[country])
+    # Main resource allocation solution
     allocated_resource.append( minimum_cost_resource_allocator(country, machine_type, machines, country_prices, units) )
   
+  # Print final output in the given format
   print({
       "Output" : allocated_resource
       })
