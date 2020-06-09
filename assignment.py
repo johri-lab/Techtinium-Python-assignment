@@ -45,7 +45,7 @@ def minimum_cost_resource_allocator(country, machine_type, machines, country_pri
         solution_matrix[i][j] = solution_matrix[i-1][j]
 
   lowest_weight = solution_matrix[n][units]
-  machines_with_qty = find_machines(solution_matrix, n, units, country_prices)
+  machines_with_qty = find_machines(solution_matrix, n, machine_type, machines, units, country_prices)
   
   # Output in the format 
   output = {
@@ -55,7 +55,7 @@ def minimum_cost_resource_allocator(country, machine_type, machines, country_pri
   }
   return output
 
-def find_machines(dp, n, units, country_prices):
+def find_machines(dp, n, machine_type, machines, units, country_prices):
   '''
   Function to track the matrix and 
   find the machines and their respective quantities
@@ -70,7 +70,6 @@ def find_machines(dp, n, units, country_prices):
     elif (dp[x - 1][y] == dp[x][y - machines[x - 1]] + country_prices[x - 1]): 
         x-=1
     else:
-      # add number to the machine type
       if machine_type[x - 1] in hash.keys():
         hash[machine_type[x - 1]] += 1
       else:
@@ -80,14 +79,10 @@ def find_machines(dp, n, units, country_prices):
   return hash
 
 
-if __name__ == "__main__":
+def resource_allocator(units, time):
   '''
-  Main calling function
+  Main resource allocator function  
   '''
-  units = int(input("Capacity (units): "))
-  time = int(input("Operation time (hours): "))
-  
-  # Given data
   countries= ["NewYork", "India", "China"]
   NewYork  = [120,230,450,774,1400,2820]
   India    = [140,None,413,890,1300,2970]		
@@ -100,12 +95,18 @@ if __name__ == "__main__":
     country_pricelist = [NewYork, India, China]
     country_and_price = dict(zip(countries, country_pricelist))
 
-    # Data cleaning and price based on time calculation
     machine_type, machines, country_prices = data_generation(machine_type, time, machines, country_and_price[country])
-    # Main resource allocation solution
     allocated_resource.append( minimum_cost_resource_allocator(country, machine_type, machines, country_prices, units) )
   
-  # Print final output in the given format
   print({
       "Output" : allocated_resource
       })
+
+
+if __name__ == "__main__":
+  '''
+  Main calling function
+  '''
+  units = int(input("Capacity (units): "))
+  time = int(input("Operation time (hours): "))
+  resource_allocator(units, time)
